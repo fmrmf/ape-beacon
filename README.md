@@ -1,6 +1,6 @@
 # Quick Start
 
-TODO: Description
+Use the Beacon ecosystem plugin to interact with the [Ethereum consensus layer](https://github.com/ethereum/beacon-APIs) via APIs.
 
 ## Dependencies
 
@@ -13,7 +13,7 @@ TODO: Description
 You can install the latest release via [`pip`](https://pypi.org/project/pip/):
 
 ```bash
-pip install <PYPI_NAME>
+pip install ape-beacon
 ```
 
 ### via `setuptools`
@@ -21,14 +21,20 @@ pip install <PYPI_NAME>
 You can clone the repository and use [`setuptools`](https://github.com/pypa/setuptools) for the most up-to-date version:
 
 ```bash
-git clone https://github.com/ApeWorX/<PYPI_NAME>.git
-cd <PYPI_NAME>
+git clone https://github.com/ApeWorX/ape-beacon.git
+cd ape-beacon
 python3 setup.py install
 ```
 
 ## Quick Usage
 
-TODO: Describe library overview in code
+TODO: Should eventually follow something along the lines of e.g.
+
+```
+ape console --network beacon:mainnet:lighthouse
+```
+
+if using the [Lighthouse](https://github.com/sigp/lighthouse) consensus client.
 
 ## Development
 
