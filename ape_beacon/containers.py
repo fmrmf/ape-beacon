@@ -1,9 +1,7 @@
 from typing import Any, Optional
 
-from ape_ethereum.ecosystem import Block
+from ape.api.providers import BlockAPI
 from pydantic import BaseModel
-
-# TODO: use container with py-ssz https://github.com/ethereum/py-ssz?
 
 
 class BeaconBlockBody(BaseModel):
@@ -27,7 +25,7 @@ class BeaconBlockBody(BaseModel):
     # voluntary_exits: List[SignedVoluntaryExit, MAX_VOLUNTARY_EXITS]
     # sync_aggregate: SyncAggregate
     # Execution
-    execution_payload: Optional[Block] = None  # NOTE: pre-merge body does not have EL payload
+    execution_payload: Optional[BlockAPI] = None  # NOTE: pre-merge body does not have EL payload
 
     # TODO: decode_body() given prev_randao key in execution payload
     # SEE: https://github.com/ethereum/consensus-specs/blob/dev/specs/bellatrix/beacon-chain.md#executionpayload  # noqa: E501

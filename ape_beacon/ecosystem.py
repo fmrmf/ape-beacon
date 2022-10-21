@@ -1,11 +1,9 @@
-from typing import Any, Dict, Optional, cast
+from typing import Dict, Optional, cast
 
 from ape.api.config import PluginConfig
 from ape.api.networks import LOCAL_NETWORK_NAME
-from ape.utils import EMPTY_BYTES32, BaseInterfaceModel
+from ape.api.providers import BlockAPI
 from ape_ethereum.ecosystem import Ethereum, NetworkConfig
-from hexbytes import HexBytes
-from pydantic import Field, root_validator, validator
 
 from ape_beacon.containers import BeaconBlockBody
 
@@ -37,7 +35,7 @@ class BeaconConfig(PluginConfig):
     default_network: str = LOCAL_NETWORK_NAME
 
 
-class BeaconBlock(BaseInterfaceModel):
+class BeaconBlock(BlockAPI):
     """
     Class for representing a consensus layer block.
 
@@ -45,24 +43,9 @@ class BeaconBlock(BaseInterfaceModel):
     `Beacon block <https://github.com/ethereum/beacon-APIs/blob/master/types/bellatrix/block.yaml>`
     """
 
-    # TODO: check for Optional/None values when pending status
     slot: Optional[int] = None
     proposer_index: Optional[int] = None
-    parent_root: Any = Field(EMPTY_BYTES32)  # genesis block has no parent root?
-    state_root: Optional[Any] = None
     body: BeaconBlockBody
-
-    @root_validator(pre=True)
-    def convert_parent_hash(cls, data):
-        parent_root = data.get("parent_root") or EMPTY_BYTES32
-        data["parent_root"] = parent_root
-        return data
-
-    @validator("state_root", "parent_root", pre=True)
-    def validate_hexbytes(cls, value):
-        # NOTE: pydantic treats these values as bytes and throws an error
-        if value and not isinstance(value, HexBytes):
-            raise ValueError(f"Hash `{value}` is not a valid Hexbytes.")
 
 
 class Beacon(Ethereum):
@@ -72,7 +55,7 @@ class Beacon(Ethereum):
 
     # TODO: make sure BeaconProvider parses signed block response into this input data format  # noqa: E501
     # TODO: is there a clean method already with ape ecosystem for ethereum or in Web3Provider? will need one for input data dict to beacon block decode  # noqa: E501
-    def decode_block(self, data: Dict) -> BeaconBlock:
+    def decode_block(self, data: Dict) -> BlockAPI:
         """
         Decodes consensus layer block with possible execution layer
         payload.
@@ -80,6 +63,20 @@ class Beacon(Ethereum):
         # decode EL block separately from CL
         payload_data = data["body"].pop("execution_payload", None)
         payload = super().decode_block(payload_data) if payload_data else None
+
+        # map CL roots to BlockAPI hashes
+        if "parent_root" in data:
+            data["parent_hash"] = data.pop("parent_root")
+        if "state_root" in data:
+            data["hash"] = data.pop("state_root")
+
+        # use data from EL if can (block in a block post-merge)
+        if payload is not None:
+            data["timestamp"] = payload.timestamp
+            data["size"] = payload.size
+        else:
+            data["timestamp"] = 0
+            data["size"] = 0
 
         # parse without EL payload then set payload
         block = BeaconBlock.parse_obj(data)
