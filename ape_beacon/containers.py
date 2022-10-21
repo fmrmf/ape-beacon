@@ -1,7 +1,20 @@
 from typing import Any, Optional
 
 from ape.api.providers import BlockAPI
-from pydantic import BaseModel
+from hexbytes import HexBytes
+from pydantic import BaseModel, validator
+
+
+class BeaconExecutionPayload(BlockAPI):
+    prev_randao: Any
+
+    @validator("hash", "parent_hash", "prev_randao", pre=True)
+    def validate_hexbytes(cls, value):
+        # NOTE: pydantic treats these values as bytes and throws an error
+        if value and not isinstance(value, HexBytes):
+            raise ValueError(f"Hash `{value}` is not a valid Hexbytes.")
+
+        return value
 
 
 class BeaconBlockBody(BaseModel):
@@ -13,10 +26,9 @@ class BeaconBlockBody(BaseModel):
     <https://github.com/ethereum/beacon-APIs/blob/master/types/bellatrix/block.yaml>`
     """
 
-    # TODO: the below attributes
-    randao_reveal: Any  # Bytes96 to hexbytes?
+    randao_reveal: Any  # Bytes96
     # eth1_data: Eth1Data  # Eth1 data vote
-    graffiti: Any  # Bytes32 Arbitrary data to hexbytes?
+    graffiti: Any  # Bytes32
     # Operations
     # proposer_slashings: List[ProposerSlashing, MAX_PROPOSER_SLASHINGS]
     # attester_slashings: List[AttesterSlashing, MAX_ATTESTER_SLASHINGS]
@@ -24,8 +36,6 @@ class BeaconBlockBody(BaseModel):
     # deposits: List[Deposit, MAX_DEPOSITS]
     # voluntary_exits: List[SignedVoluntaryExit, MAX_VOLUNTARY_EXITS]
     # sync_aggregate: SyncAggregate
-    # Execution
-    execution_payload: Optional[BlockAPI] = None  # NOTE: pre-merge body does not have EL payload
+    execution_payload: Optional[BeaconExecutionPayload] = None  # NOTE: pre-merge has no payload
 
-    # TODO: decode_body() given prev_randao key in execution payload
     # SEE: https://github.com/ethereum/consensus-specs/blob/dev/specs/bellatrix/beacon-chain.md#executionpayload  # noqa: E501

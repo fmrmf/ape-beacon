@@ -1,5 +1,7 @@
 from hexbytes import HexBytes
 
+from ape_beacon.containers import BeaconExecutionPayload
+
 # NOTE: testing success cases given time constraints
 # TODO: testing non-success
 
@@ -117,7 +119,9 @@ def test_decode_block_when_payload(beacon, ethereum):
                             "0x56e81f171bcc55a6ff8345e692c0f86e5b48e01b996cadc001622fb5e363b421"
                         ),
                         "logs_bloom": None,
-                        "prev_randao": HexBytes("0x"),
+                        "prev_randao": HexBytes(
+                            "0x6474a9820165be467f1d25ed54f4802f72c4c95a19cf4ba4cdb8894f55d74195"
+                        ),  # noqa: E501
                         "number": 15796864,
                         "gas_limit": 30000000,
                         "gas_used": 12900335,
@@ -138,10 +142,14 @@ def test_decode_block_when_payload(beacon, ethereum):
     }
     block_data = signed_block_resp["data"]["message"]
     payload_data = block_data["body"]["execution_payload"]
+    prev_randao_data = block_data["body"]["execution_payload"]["prev_randao"]
 
     actual = beacon.decode_block(block_data)
     assert actual is not None
 
-    expected_payload = ethereum.decode_block(payload_data)
+    expected_payload_data = ethereum.decode_block(payload_data).dict()
+    expected_payload_data.update({"prev_randao": prev_randao_data})
+    expected_payload = BeaconExecutionPayload.parse_obj(expected_payload_data)
+
     actual_payload = actual.body.execution_payload
     assert actual_payload == expected_payload
