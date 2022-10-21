@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from ape_ethereum.api.ecosystem import Block
+from ape_ethereum.ecosystem import Block
 from pydantic import BaseModel
 
 # TODO: use container with py-ssz https://github.com/ethereum/py-ssz?
@@ -28,3 +28,6 @@ class BeaconBlockBody(BaseModel):
     # sync_aggregate: SyncAggregate
     # Execution
     execution_payload: Optional[Block] = None  # NOTE: pre-merge body does not have EL payload
+
+    # TODO: decode_body() given prev_randao key in execution payload
+    # SEE: https://github.com/ethereum/consensus-specs/blob/dev/specs/bellatrix/beacon-chain.md#executionpayload  # noqa: E501

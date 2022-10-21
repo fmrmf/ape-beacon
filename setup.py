@@ -52,7 +52,11 @@ setup(
     author_email="admin@apeworx.io",
     url="https://github.com/ApeWorX/ape-beacon",
     include_package_data=True,
-    install_requires=[],
+    install_requires=[
+        "eth-ape>=0.5.2,<0.6.0",
+        "hexbytes",  # Use same version as eth-ape
+        "web3",  # Use same version as eth-ape
+    ],
     python_requires=">=3.8,<4",
     extras_require=extras_require,
     py_modules=["ape_beacon"],

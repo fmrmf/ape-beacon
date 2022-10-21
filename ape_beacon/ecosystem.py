@@ -9,6 +9,12 @@ from pydantic import Field, root_validator, validator
 
 from ape_beacon.containers import BeaconBlockBody
 
+NETWORKS = {
+    # chain_id, network_id
+    "mainnet": (1, 1),
+    "goerli": (5, 5),
+}
+
 
 def _create_network_config(
     required_confirmations: int = 7, block_time: int = 12, **kwargs
@@ -64,13 +70,15 @@ class Beacon(Ethereum):
     def config(self) -> BeaconConfig:  # type: ignore
         return cast(BeaconConfig, self.config_manager.get_config("beacon"))
 
+    # TODO: make sure BeaconProvider parses signed block response into this input data format  # noqa: E501
+    # TODO: is there a clean method already with ape ecosystem for ethereum or in Web3Provider? will need one for input data dict to beacon block decode  # noqa: E501
     def decode_block(self, data: Dict) -> BeaconBlock:
         """
         Decodes consensus layer block with possible execution layer
         payload.
         """
         # decode EL block separately from CL
-        payload_data = data["body"].pop("execution_payload")
+        payload_data = data["body"].pop("execution_payload", None)
         payload = super().decode_block(payload_data) if payload_data else None
 
         # parse without EL payload then set payload
