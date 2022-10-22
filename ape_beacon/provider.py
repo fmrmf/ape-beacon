@@ -1,6 +1,7 @@
 from abc import ABC
 from typing import Optional
 
+import requests
 from ape.api.networks import LOCAL_NETWORK_NAME
 from ape.api.providers import BlockAPI, ProviderAPI
 from ape.api.transactions import TransactionAPI
@@ -89,7 +90,7 @@ class BeaconProvider(ProviderAPI, ABC):
             return False
 
         status_code = self._beacon.get_health()
-        return status_code == 200
+        return status_code == requests.status_codes.codes.ok
 
     @cached_property
     def chain_id(self) -> int:
@@ -107,7 +108,7 @@ class BeaconProvider(ProviderAPI, ABC):
             if "data" in resp and "chain_id" in resp["data"]:
                 return resp["data"]["chain_id"]
 
-        except ProviderNotConnectedError:
+        except requests.exceptions.HTTPError:
             if default_chain_id is not None:
                 return default_chain_id
 
@@ -122,14 +123,15 @@ class BeaconProvider(ProviderAPI, ABC):
         """
         As if you did ``Beacon(uri).get_block(block_id)``.
         """
-        # TODO: handle raise_for_status errors from Beacon
-
         if isinstance(block_id, str) and block_id.isnumeric():
             block_id = int(block_id)
 
-        resp = self.beacon.get_block(str(block_id))
-        if "data" not in resp or "message" not in resp["data"]:
-            raise BlockNotFoundError(block_id)
+        try:
+            resp = self.beacon.get_block(str(block_id))
+            if "data" not in resp or "message" not in resp["data"]:
+                raise BlockNotFoundError(block_id)
+        except requests.exceptions.HTTPError as err:
+            raise BlockNotFoundError(block_id) from err
 
         block_data = resp["data"]["message"]
         return self.network.ecosystem.decode_block(block_data)
@@ -138,12 +140,12 @@ class BeaconProvider(ProviderAPI, ABC):
         """
         Gets the validator balance for validator address or ID on beacon chain.
         """
-
-        # TODO: handle raise_for_status errors from Beacon
-
-        resp = self.beacon.get_validator(validator_id=address)
-        if "data" not in resp or "balance" not in resp["data"]:
-            raise ValidatorNotFoundError(address)
+        try:
+            resp = self.beacon.get_validator(validator_id=address)
+            if "data" not in resp or "balance" not in resp["data"]:
+                raise ValidatorNotFoundError(address)
+        except requests.exceptions.HTTPError as err:
+            raise ValidatorNotFoundError(address) from err
 
         balance = resp["data"]["balance"]
         return balance
