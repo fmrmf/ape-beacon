@@ -5,6 +5,8 @@ from ape.utils import EMPTY_BYTES32
 from hexbytes import HexBytes
 from pydantic import BaseModel, validator
 
+# TODO: use eth_typing
+
 
 class Eth1Data(BaseModel):
     deposit_root: Any  # Bytes32

@@ -5,12 +5,20 @@ import requests
 from ape.api.networks import LOCAL_NETWORK_NAME
 from ape.api.providers import BlockAPI, ProviderAPI
 from ape.api.transactions import TransactionAPI
-from ape.exceptions import APINotImplementedError, BlockNotFoundError, ProviderNotConnectedError
+from ape.exceptions import (
+    APINotImplementedError,
+    BlockNotFoundError,
+    ConversionError,
+    ProviderNotConnectedError,
+)
 from ape.types import BlockID
 from ape.utils import cached_property
+from eth_typing import HexStr
+from hexbytes import HexBytes
 from web3.beacon import Beacon
 
 from ape_beacon.exceptions import ValidatorNotFoundError
+from ape_beacon.types import convert_block_id
 
 
 class BeaconProvider(ProviderAPI, ABC):
@@ -79,6 +87,12 @@ class BeaconProvider(ProviderAPI, ABC):
     def get_nonce(self, address: str, **kwargs) -> int:
         raise APINotImplementedError("get_nonce is not implemented by this provider.")
 
+    def get_code(self, address: str) -> bytes:
+        raise APINotImplementedError("get_code is not implemented by this provider.")
+
+    def get_storage_at(self, address: str, slot: int, **kwargs) -> bytes:
+        raise APINotImplementedError("get_storage_at is not implemented by this provider.")
+
     def update_settings(self, new_settings: dict):
         self.disconnect()
         self.provider_settings.update(new_settings)
@@ -123,11 +137,16 @@ class BeaconProvider(ProviderAPI, ABC):
         """
         As if you did ``Beacon(uri).get_block(block_id)``.
         """
-        if isinstance(block_id, str) and block_id.isnumeric():
-            block_id = int(block_id)
+        try:
+            beacon_block_id = convert_block_id(block_id)
+        except ConversionError as err:
+            raise BlockNotFoundError(block_id) from err
+
+        if isinstance(beacon_block_id, HexBytes):
+            beacon_block_id = HexStr(beacon_block_id.hex())
 
         try:
-            resp = self.beacon.get_block(str(block_id))
+            resp = self.beacon.get_block(str(beacon_block_id))
             if "data" not in resp or "message" not in resp["data"]:
                 raise BlockNotFoundError(block_id)
         except requests.exceptions.HTTPError as err:
@@ -149,3 +168,13 @@ class BeaconProvider(ProviderAPI, ABC):
 
         balance = resp["data"]["balance"]
         return balance
+
+    def block_ranges(self, start=0, stop=None, page=None):
+        if stop is None:
+            stop = self.chain_manager.blocks.height
+        if page is None:
+            page = self.block_page_size
+
+        for start_block in range(start, stop + 1, page):
+            stop_block = min(stop, start_block + page - 1)
+            yield start_block, stop_block
