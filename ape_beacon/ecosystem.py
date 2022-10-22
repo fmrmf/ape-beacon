@@ -53,7 +53,6 @@ class Beacon(Ethereum):
     def config(self) -> BeaconConfig:  # type: ignore
         return cast(BeaconConfig, self.config_manager.get_config("beacon"))
 
-    # TODO: make sure BeaconProvider parses signed block response into this input data format  # noqa: E501
     def decode_block(self, data: Dict) -> BlockAPI:
         """
         Decodes consensus layer block with possible execution layer
