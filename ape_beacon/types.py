@@ -1,6 +1,5 @@
 from typing import Literal, Union
 
-from ape.exceptions import ConversionError
 from ape.types import BlockID
 from eth_typing import HexStr
 from hexbytes import HexBytes
@@ -20,7 +19,4 @@ def convert_block_id(block_id: BlockID) -> BeaconBlockID:
     elif block_id == "pending":
         # TODO: make sure this is ok. is "pending" in eth1 land really this? (sorta?)
         return "finalized"
-    else:
-        # should never happen
-        raise ConversionError()
     return block_id

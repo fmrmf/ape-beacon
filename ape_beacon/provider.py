@@ -5,12 +5,7 @@ import requests
 from ape.api.networks import LOCAL_NETWORK_NAME
 from ape.api.providers import BlockAPI, ProviderAPI
 from ape.api.transactions import TransactionAPI
-from ape.exceptions import (
-    APINotImplementedError,
-    BlockNotFoundError,
-    ConversionError,
-    ProviderNotConnectedError,
-)
+from ape.exceptions import APINotImplementedError, BlockNotFoundError, ProviderNotConnectedError
 from ape.types import BlockID
 from ape.utils import cached_property
 from eth_typing import HexStr
@@ -137,11 +132,7 @@ class BeaconProvider(ProviderAPI, ABC):
         """
         As if you did ``Beacon(uri).get_block(block_id)``.
         """
-        try:
-            beacon_block_id = convert_block_id(block_id)
-        except ConversionError as err:
-            raise BlockNotFoundError(block_id) from err
-
+        beacon_block_id = convert_block_id(block_id)
         if isinstance(beacon_block_id, HexBytes):
             beacon_block_id = HexStr(beacon_block_id.hex())
 
