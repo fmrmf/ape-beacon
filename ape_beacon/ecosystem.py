@@ -43,7 +43,6 @@ class BeaconBlock(BlockAPI):
     `Beacon block <https://github.com/ethereum/beacon-APIs/blob/master/types/bellatrix/block.yaml>`
     """
 
-    slot: Optional[int] = None
     proposer_index: Optional[int] = None
     body: BeaconBlockBody
 
@@ -58,7 +57,9 @@ class Beacon(Ethereum):
         Decodes consensus layer block with possible execution layer
         payload.
         """
-        # map CL roots to ape BlockAPI hashes (block within a block)
+        # map CL (slot, roots) to ape BlockAPI (number, hashes)
+        if "slot" in data:
+            data["number"] = data.pop("slot")
         if "parent_root" in data:
             data["parent_hash"] = data.pop("parent_root")
         if "state_root" in data:
@@ -80,11 +81,10 @@ class Beacon(Ethereum):
         data["timestamp"] = 0
         data["size"] = 0
 
-        # use data from EL if can (block in a block post-merge)
+        # use data from EL if can (block within a block post-merge)
         payload = None
         payload_data = data["body"].pop("execution_payload", None)
         if payload_data is not None:
-            data["number"] = payload_data["number"]
             data["timestamp"] = payload_data["timestamp"]
             data["size"] = payload_data["size"]
 

@@ -161,6 +161,10 @@ class BeaconProvider(ProviderAPI, ABC):
         return balance
 
     def block_ranges(self, start=0, stop=None, page=None):
+        """
+        Ranges over beacon chain slot number, which is effectively
+        the block number for the consensus layer.
+        """
         if stop is None:
             stop = self.chain_manager.blocks.height
         if page is None:
