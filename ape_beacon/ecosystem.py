@@ -59,13 +59,25 @@ class Beacon(Ethereum):
         Decodes consensus layer block with possible execution layer
         payload.
         """
-        # map CL roots to BlockAPI hashes
+        # map CL roots to ape BlockAPI hashes (block within a block)
         if "parent_root" in data:
             data["parent_hash"] = data.pop("parent_root")
         if "state_root" in data:
             data["hash"] = data.pop("state_root")
 
-        # init timestamp and size so doesnt throw validation error if no payload
+        # limit data retained at block level for beacon operations
+        if "proposer_slashings" in data:
+            data["num_proposer_slashings"] = len(data["proposer_slashings"])
+        if "attester_slashings" in data:
+            data["num_attester_slashings"] = len(data["attester_slashings"])
+        if "attestations" in data:
+            data["num_attestations"] = len(data["attestations"])
+        if "deposits" in data:
+            data["num_deposits"] = len(data["deposits"])
+        if "voluntary_exits" in data:
+            data["num_voluntary_exits"] = len(data["voluntary_exits"])
+
+        # init beacon block timestamp and size so doesnt throw validation error if no payload
         data["timestamp"] = 0
         data["size"] = 0
 
@@ -73,6 +85,7 @@ class Beacon(Ethereum):
         payload = None
         payload_data = data["body"].pop("execution_payload", None)
         if payload_data is not None:
+            data["number"] = payload_data["number"]
             data["timestamp"] = payload_data["timestamp"]
             data["size"] = payload_data["size"]
 

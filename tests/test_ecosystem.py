@@ -16,18 +16,26 @@ def test_decode_block_when_no_payload(beacon):
                 "proposer_index": "61090",
                 "parent_root": HexBytes(
                     "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"
-                ),  # noqa: E501
+                ),
                 "state_root": HexBytes(
                     "0x7773ed5a7e944c6238cd0a5c32170663ef2be9efc594fb43ad0f07ecf4c09d2b"
-                ),  # noqa: E501
+                ),
                 "body": {
-                    "randao_reveal": "0x8e245a52a0a680fcfe789013e123880c321f237de10cad108dc55dd47290d7cfe50cdaa003c6f783405efdac48cef44e152493abba40d9f9815a060dd6151cb0635906c9e3c1ad4859cada73ccd2d6b8747e4aeeada7d75d454bcc8672afa813",  # noqa: E501
+                    "randao_reveal": HexBytes(
+                        "0x8e245a52a0a680fcfe789013e123880c321f237de10cad108dc55dd47290d7cfe50cdaa003c6f783405efdac48cef44e152493abba40d9f9815a060dd6151cb0635906c9e3c1ad4859cada73ccd2d6b8747e4aeeada7d75d454bcc8672afa813"  # noqa: E501
+                    ),
                     "eth1_data": {
-                        "deposit_root": "0x4e910ac762815c13e316e72506141f5b6b441d58af8e0a049cd3341c25728752",  # noqa: E501
+                        "deposit_root": HexBytes(
+                            "0x4e910ac762815c13e316e72506141f5b6b441d58af8e0a049cd3341c25728752"
+                        ),
                         "deposit_count": "100596",
-                        "block_hash": "0x89cb78044843805fb4dab8abd743fc96c2b8e955c58f9b7224d468d85ef57130",  # noqa: E501
+                        "block_hash": HexBytes(
+                            "0x89cb78044843805fb4dab8abd743fc96c2b8e955c58f9b7224d468d85ef57130"
+                        ),
                     },
-                    "graffiti": "0x74656b752f76302e31322e31342b34342d673863656562663600000000000000",  # noqa: E501
+                    "graffiti": HexBytes(
+                        "0x74656b752f76302e31322e31342b34342d673863656562663600000000000000"
+                    ),
                     "proposer_slashings": [],
                     "attester_slashings": [],
                     "attestations": [
@@ -36,24 +44,34 @@ def test_decode_block_when_no_payload(beacon):
                             "data": {
                                 "slot": "0",
                                 "index": "7",
-                                "beacon_block_root": "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87",  # noqa: E501
+                                "beacon_block_root": HexBytes(
+                                    "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"  # noqa: E501
+                                ),
                                 "source": {
                                     "epoch": "0",
-                                    "root": "0x0000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+                                    "root": HexBytes(
+                                        "0x0000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
+                                    ),
                                 },
                                 "target": {
                                     "epoch": "0",
-                                    "root": "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87",  # noqa: E501
+                                    "root": HexBytes(
+                                        "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"  # noqa: E501
+                                    ),
                                 },
                             },
-                            "signature": "0x967dd2946358db7e426ed19d4576bc75123520ef6a489ca50002222070ee4611f9cef394e5e3071236a93b825f18a4ad07f1d5a1405e6c984f1d71e03f535d13a2156d6ba22cb0c2b148df23a7b8a7293315d6e74b9a26b64283e8393f2ad4c5",  # noqa: E501
+                            "signature": HexBytes(
+                                "0x967dd2946358db7e426ed19d4576bc75123520ef6a489ca50002222070ee4611f9cef394e5e3071236a93b825f18a4ad07f1d5a1405e6c984f1d71e03f535d13a2156d6ba22cb0c2b148df23a7b8a7293315d6e74b9a26b64283e8393f2ad4c5"  # noqa: E501
+                            ),
                         }
                     ],
                     "deposits": [],
                     "voluntary_exits": [],
                 },
             },
-            "signature": "0xa30d70b3e62ff776fe97f7f8b3472194af66849238a958880510e698ec3b8a470916680b1a82f9d4753c023153fbe6db10c464ac532c1c9c8919adb242b05ef7152ba3e6cd08b730eac2154b9802203ead6079c8dfb87f1e900595e6c00b4a9a",  # noqa: E501
+            "signature": HexBytes(
+                "0xa30d70b3e62ff776fe97f7f8b3472194af66849238a958880510e698ec3b8a470916680b1a82f9d4753c023153fbe6db10c464ac532c1c9c8919adb242b05ef7152ba3e6cd08b730eac2154b9802203ead6079c8dfb87f1e900595e6c00b4a9a"  # noqa: E501
+            ),
         },
     }
     block_data_with_none_payload = signed_block_resp_with_none_payload["data"]["message"]
@@ -68,41 +86,57 @@ def test_decode_block_when_payload(beacon, ethereum):
         "execution_optimistic": False,
         "data": {
             "message": {
-                "slot": "1",
-                "proposer_index": "61090",
+                "slot": 1,
+                "proposer_index": 61090,
                 "parent_root": HexBytes(
                     "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"
-                ),  # noqa: E501
+                ),
                 "state_root": HexBytes(
                     "0x7773ed5a7e944c6238cd0a5c32170663ef2be9efc594fb43ad0f07ecf4c09d2b"
-                ),  # noqa: E501
+                ),
                 "body": {
-                    "randao_reveal": "0x8e245a52a0a680fcfe789013e123880c321f237de10cad108dc55dd47290d7cfe50cdaa003c6f783405efdac48cef44e152493abba40d9f9815a060dd6151cb0635906c9e3c1ad4859cada73ccd2d6b8747e4aeeada7d75d454bcc8672afa813",  # noqa: E501
+                    "randao_reveal": HexBytes(
+                        "0x8e245a52a0a680fcfe789013e123880c321f237de10cad108dc55dd47290d7cfe50cdaa003c6f783405efdac48cef44e152493abba40d9f9815a060dd6151cb0635906c9e3c1ad4859cada73ccd2d6b8747e4aeeada7d75d454bcc8672afa813"  # noqa: E501
+                    ),
                     "eth1_data": {
-                        "deposit_root": "0x4e910ac762815c13e316e72506141f5b6b441d58af8e0a049cd3341c25728752",  # noqa: E501
-                        "deposit_count": "100596",
-                        "block_hash": "0x89cb78044843805fb4dab8abd743fc96c2b8e955c58f9b7224d468d85ef57130",  # noqa: E501
+                        "deposit_root": HexBytes(
+                            "0x4e910ac762815c13e316e72506141f5b6b441d58af8e0a049cd3341c25728752"
+                        ),
+                        "deposit_count": 100596,
+                        "block_hash": HexBytes(
+                            "0x89cb78044843805fb4dab8abd743fc96c2b8e955c58f9b7224d468d85ef57130"
+                        ),
                     },
-                    "graffiti": "0x74656b752f76302e31322e31342b34342d673863656562663600000000000000",  # noqa: E501
+                    "graffiti": HexBytes(
+                        "0x74656b752f76302e31322e31342b34342d673863656562663600000000000000"
+                    ),
                     "proposer_slashings": [],
                     "attester_slashings": [],
                     "attestations": [
                         {
                             "aggregation_bits": "0x0080020004000000008208000102000905",
                             "data": {
-                                "slot": "0",
-                                "index": "7",
-                                "beacon_block_root": "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87",  # noqa: E501
+                                "slot": 0,
+                                "index": 7,
+                                "beacon_block_root": HexBytes(
+                                    "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"  # noqa: E501
+                                ),
                                 "source": {
-                                    "epoch": "0",
-                                    "root": "0x0000000000000000000000000000000000000000000000000000000000000000",  # noqa: E501
+                                    "epoch": 0,
+                                    "root": HexBytes(
+                                        "0x0000000000000000000000000000000000000000000000000000000000000000"  # noqa: E501
+                                    ),
                                 },
                                 "target": {
-                                    "epoch": "0",
-                                    "root": "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87",  # noqa: E501
+                                    "epoch": 0,
+                                    "root": HexBytes(
+                                        "0x6a89af5df908893eedbed10ba4c13fc13d5653ce57db637e3bfded73a987bb87"  # noqa: E501
+                                    ),
                                 },
                             },
-                            "signature": "0x967dd2946358db7e426ed19d4576bc75123520ef6a489ca50002222070ee4611f9cef394e5e3071236a93b825f18a4ad07f1d5a1405e6c984f1d71e03f535d13a2156d6ba22cb0c2b148df23a7b8a7293315d6e74b9a26b64283e8393f2ad4c5",  # noqa: E501
+                            "signature": HexBytes(
+                                "0x967dd2946358db7e426ed19d4576bc75123520ef6a489ca50002222070ee4611f9cef394e5e3071236a93b825f18a4ad07f1d5a1405e6c984f1d71e03f535d13a2156d6ba22cb0c2b148df23a7b8a7293315d6e74b9a26b64283e8393f2ad4c5"  # noqa: E501
+                            ),
                         }
                     ],
                     "deposits": [],
@@ -137,7 +171,9 @@ def test_decode_block_when_payload(beacon, ethereum):
                     },
                 },
             },
-            "signature": "0xa30d70b3e62ff776fe97f7f8b3472194af66849238a958880510e698ec3b8a470916680b1a82f9d4753c023153fbe6db10c464ac532c1c9c8919adb242b05ef7152ba3e6cd08b730eac2154b9802203ead6079c8dfb87f1e900595e6c00b4a9a",  # noqa: E501
+            "signature": HexBytes(
+                "0xa30d70b3e62ff776fe97f7f8b3472194af66849238a958880510e698ec3b8a470916680b1a82f9d4753c023153fbe6db10c464ac532c1c9c8919adb242b05ef7152ba3e6cd08b730eac2154b9802203ead6079c8dfb87f1e900595e6c00b4a9a"  # noqa: E501
+            ),
         },
     }
     block_data = signed_block_resp["data"]["message"]
