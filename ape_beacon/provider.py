@@ -159,7 +159,7 @@ class BeaconProvider(ProviderAPI, ABC):
         Gets the validator balance for validator address or ID on beacon chain.
         """
         try:
-            resp = self.beacon.get_validator(validator_id=address)
+            resp = self.beacon.get_validator(address)
             if "data" not in resp or "balance" not in resp["data"]:
                 raise ValidatorNotFoundError(address)
         except requests.exceptions.HTTPError as err:

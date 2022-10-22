@@ -14,24 +14,19 @@ NETWORKS = {
 }
 
 
-def _create_network_config(
-    required_confirmations: int = 7, block_time: int = 12, **kwargs
-) -> NetworkConfig:
-    # Helper method to isolate `type: ignore` comments.
-    return NetworkConfig(
-        required_confirmations=required_confirmations, block_time=block_time, **kwargs
-    )  # type: ignore
-
-
 def _create_local_config(default_provider: Optional[str] = None) -> NetworkConfig:
-    return _create_network_config(
-        required_confirmations=0, block_time=0, default_provider=default_provider
-    )
+    return _create_config(required_confirmations=0, block_time=0, default_provider=default_provider)
+
+
+def _create_config(required_confirmations: int = 2, **kwargs) -> NetworkConfig:
+    # Put in own method to isolate `type: ignore` comments
+    return NetworkConfig(required_confirmations=required_confirmations, **kwargs)  # type: ignore
 
 
 class BeaconConfig(PluginConfig):
-    mainnet: NetworkConfig = _create_network_config()
-    local: NetworkConfig = _create_network_config(default_provider="test")
+    mainnet: NetworkConfig = _create_config(block_time=12, default_provider="lighthouse")
+    goerli: NetworkConfig = _create_config(block_time=12, default_provider="lighthouse")
+    local: NetworkConfig = _create_local_config(default_provider="test")
     default_network: str = LOCAL_NETWORK_NAME
 
 
