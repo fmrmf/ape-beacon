@@ -6,7 +6,7 @@ from ape_beacon.containers import BeaconExecutionPayload
 # TODO: testing non-success
 
 
-def test_decode_block_when_no_payload(eth_tester_provider, beacon):
+def test_decode_block_when_no_payload(beacon):
     signed_block_resp_with_none_payload = {
         "version": "phase0",
         "execution_optimistic": False,
@@ -79,7 +79,7 @@ def test_decode_block_when_no_payload(eth_tester_provider, beacon):
     assert actual.body.execution_payload is None
 
 
-def test_decode_block_when_payload(eth_tester_provider, beacon, ethereum):
+def test_decode_block_when_payload(beacon, ethereum):
     # SEE: https://github.com/ethereum/consensus-specs/blob/dev/specs/bellatrix/beacon-chain.md#beaconblockbody  # noqa: E501
     signed_block_resp = {
         "version": "phase0",

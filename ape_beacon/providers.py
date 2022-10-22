@@ -3,7 +3,7 @@ from typing import Iterator, Optional
 
 import requests
 from ape.api.networks import LOCAL_NETWORK_NAME
-from ape.api.providers import BlockAPI, ProviderAPI
+from ape.api.providers import BlockAPI, ProviderAPI, TestProviderAPI
 from ape.api.transactions import ReceiptAPI, TransactionAPI
 from ape.exceptions import APINotImplementedError, BlockNotFoundError, ProviderNotConnectedError
 from ape.types import BlockID, ContractLog, LogFilter
@@ -181,3 +181,10 @@ class BeaconProvider(ProviderAPI, ABC):
         for start_block in range(start, stop + 1, page):
             stop_block = min(stop, start_block + page - 1)
             yield start_block, stop_block
+
+
+class LocalProvider(TestProviderAPI, BeaconProvider):
+    """
+    TODO: a local test provider for beacon
+    Q: Why is this not registering under "test" for use_provider("test")?
+    """

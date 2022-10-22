@@ -78,16 +78,17 @@ class Beacon(Ethereum):
 
         # use data from EL if can (block within a block post-merge)
         payload = None
-        payload_data = data["body"].pop("execution_payload", None)
-        if payload_data is not None:
-            data["timestamp"] = payload_data["timestamp"]
-            data["size"] = payload_data["size"]
+        if "body" in data:
+            payload_data = data["body"].pop("execution_payload", None)
+            if payload_data is not None:
+                data["timestamp"] = payload_data["timestamp"]
+                data["size"] = payload_data["size"]
 
-            # decode EL block separately from CL
-            prev_randao = payload_data.pop("prev_randao")
-            payload_data = super().decode_block(payload_data).dict()
-            payload_data.update({"prev_randao": prev_randao})
-            payload = BeaconExecutionPayload.parse_obj(payload_data)
+                # decode EL block separately from CL
+                prev_randao = payload_data.pop("prev_randao")
+                payload_data = super().decode_block(payload_data).dict()
+                payload_data.update({"prev_randao": prev_randao})
+                payload = BeaconExecutionPayload.parse_obj(payload_data)
 
         # parse without EL payload then set payload
         block = BeaconBlock.parse_obj(data)

@@ -1,12 +1,34 @@
+from pathlib import Path
+from tempfile import mkdtemp
+
 import ape
 import pytest
 
+# NOTE: Ensure that we don't use local paths for these
+ape.config.DATA_FOLDER = Path(mkdtemp()).resolve()
+ape.config.PROJECT_FOLDER = Path(mkdtemp()).resolve()
 
-@pytest.hookimpl(trylast=True, hookwrapper=True)
-def pytest_collection_finish(session):
-    with ape.networks.parse_network_choice("::test"):
-        # Sets the active provider
-        yield
+# COPIED FROM: https://github.com/ApeWorX/ape/blob/main/tests/conftest.py
+
+
+@pytest.fixture(autouse=True)
+def setenviron(monkeypatch):
+    """
+    Sets the APE_TESTING environment variable during tests.
+    With this variable set fault handling and IPython command history logging
+    will be disabled in the ape console.
+    """
+    monkeypatch.setenv("APE_TESTING", "1")
+
+
+@pytest.fixture(scope="session")
+def config():
+    yield ape.config
+
+
+@pytest.fixture(scope="session")
+def plugin_manager():
+    yield ape.networks.plugin_manager
 
 
 @pytest.fixture(scope="session")
@@ -20,20 +42,6 @@ def accounts():
 
 
 @pytest.fixture(scope="session")
-def networks_connected_to_tester():
-    with ape.networks.parse_network_choice("::test"):
-        yield ape.networks
-
-
-@pytest.fixture
-def networks_disconnected(networks):
-    provider = networks.active_provider
-    networks.active_provider = None
-    yield networks
-    networks.active_provider = provider
-
-
-@pytest.fixture(scope="session")
 def beacon(networks):
     return networks.beacon
 
@@ -44,5 +52,11 @@ def ethereum(networks):
 
 
 @pytest.fixture(scope="session")
-def eth_tester_provider(networks_connected_to_tester):
+def networks_connected_to_tester():
+    with ape.networks.beacon.local.use_provider("test"):
+        yield ape.networks
+
+
+@pytest.fixture(scope="session")
+def beacon_tester_provider(networks_connected_to_tester):
     yield networks_connected_to_tester.provider
