@@ -3,7 +3,7 @@ from typing import Iterator, Optional
 
 import requests
 from ape.api.networks import LOCAL_NETWORK_NAME
-from ape.api.providers import BlockAPI, ProviderAPI, TestProviderAPI
+from ape.api.providers import BlockAPI, ProviderAPI
 from ape.api.transactions import ReceiptAPI, TransactionAPI
 from ape.exceptions import APINotImplementedError, BlockNotFoundError, ProviderNotConnectedError
 from ape.types import BlockID, ContractLog, LogFilter
@@ -25,7 +25,7 @@ class BeaconProvider(ProviderAPI, ABC):
 
     # NOTE: Read only provider given web3.py Beacon API implementation
 
-    _beacon: Optional[Beacon]
+    _beacon: Optional[Beacon] = None
     _client_version: Optional[str] = None
 
     @property
@@ -123,7 +123,7 @@ class BeaconProvider(ProviderAPI, ABC):
             # use deposit contract endpoint for chain ID
             resp = self.beacon.get_deposit_contract()
             if "data" in resp and "chain_id" in resp["data"]:
-                return resp["data"]["chain_id"]
+                return int(resp["data"]["chain_id"])
 
         except requests.exceptions.HTTPError:
             if default_chain_id is not None:
@@ -181,10 +181,3 @@ class BeaconProvider(ProviderAPI, ABC):
         for start_block in range(start, stop + 1, page):
             stop_block = min(stop, start_block + page - 1)
             yield start_block, stop_block
-
-
-class LocalProvider(TestProviderAPI, BeaconProvider):
-    """
-    TODO: a local test provider for beacon
-    Q: Why is this not registering under "test" for use_provider("test")?
-    """

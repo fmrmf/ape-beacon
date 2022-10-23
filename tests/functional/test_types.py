@@ -1,7 +1,8 @@
+import pytest
 from eth_typing import HexStr
 from hexbytes import HexBytes
 
-from ape_beacon.types import convert_block_id
+from ape_beacon.types import attempt_to_hexbytes, convert_block_id
 
 
 def test_convert_block_id_when_literal():
@@ -21,18 +22,22 @@ def test_convert_block_id_when_literal():
     assert actual == expect
 
 
-def test_convert_block_id_when_not_literal():
-    # int
-    expect_int = 10
-    actual_int = convert_block_id(10)
-    assert expect_int == actual_int
+@pytest.mark.parametrize("block_id", (10, "0xA", HexStr("0xA"), HexBytes("0xA")))
+def test_convert_block_id_when_not_literal(block_id):
+    expect = block_id
+    actual = convert_block_id(block_id)
+    assert actual == expect
 
-    # HexStr
-    expect_hex_str = HexStr("0xA")
-    actual_hex_str = convert_block_id(HexStr("0xA"))
-    assert actual_hex_str == expect_hex_str
 
-    # HexBytes
-    expect_hex_bytes = HexBytes("0xA")
-    actual_hex_bytes = convert_block_id(HexBytes("0xA"))
-    assert actual_hex_bytes == expect_hex_bytes
+@pytest.mark.parametrize("value", (True, b"\\x01", 1, "1", "0x1"))
+def test_attempt_to_hexbytes_when_bytes_like(value):
+    expect = HexBytes(value)
+    actual = attempt_to_hexbytes(value)
+    assert actual == expect
+
+
+@pytest.mark.parametrize("value", ({"a": "b"}, ["a", "b"]))
+def test_attempt_to_hexbytes_when_not_bytes_like(value):
+    expect = value
+    actual = attempt_to_hexbytes(value)
+    assert actual == expect

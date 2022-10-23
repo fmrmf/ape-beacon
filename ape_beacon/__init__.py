@@ -1,11 +1,8 @@
 from ape import plugins
 from ape.api import NetworkAPI, create_network_type
 from ape.api.networks import LOCAL_NETWORK_NAME
-from ape_test import LocalProvider
 
 from .ecosystem import NETWORKS, Beacon, BeaconConfig
-
-# TODO: from .providers import LocalProvider
 
 
 @plugins.register(plugins.Config)
@@ -26,8 +23,3 @@ def networks():
 
     # NOTE: This works for local providers, as they get chain_id from themselves
     yield "beacon", LOCAL_NETWORK_NAME, NetworkAPI
-
-
-@plugins.register(plugins.ProviderPlugin)
-def providers():
-    yield "beacon", LOCAL_NETWORK_NAME, LocalProvider

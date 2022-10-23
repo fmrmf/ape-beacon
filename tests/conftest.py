@@ -53,6 +53,7 @@ def ethereum(networks):
 
 @pytest.fixture(scope="session")
 def networks_connected_to_tester():
+    # TODO: fix
     with ape.networks.beacon.local.use_provider("test"):
         yield ape.networks
 

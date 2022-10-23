@@ -1,17 +1,51 @@
 import pytest
+import requests
+from ape.exceptions import ProviderNotConnectedError
 from eth_typing import HexStr
 
 
-@pytest.mark.parametrize("block_id", (0, "0", "0x0", HexStr("0x0")))
-def test_get_block(beacon_tester_provider, block_id, owner):
-    # TODO: BeaconLocalProvider as using EL blocks in tests
-    try:
-        beacon_tester_provider.get_block(block_id)
-    except Exception:
-        # NOTE: failing because using eth local provider vs beacon local
-        pass
+def test_beacon(beacon_test_provider):
+    # connected
+    beacon_test_provider.connect()
+    b = beacon_test_provider.beacon
+    assert b is not None
 
-    # Each parameter is the same as requesting the first block.
-    # assert block.number == 0
-    # assert block.base_fee == 1000000000
-    # assert block.gas_used == 0
+    # disconnected
+    beacon_test_provider.disconnect()
+    with pytest.raises(ProviderNotConnectedError):
+        beacon_test_provider.beacon
+
+
+def test_is_connected(beacon_test_provider):
+    # before connected
+    actual = beacon_test_provider.is_connected
+    expect = False
+    assert actual == expect
+
+    # after connected
+    beacon_test_provider.connect()
+    actual = beacon_test_provider.is_connected
+    expect = True
+    assert actual == expect
+
+    # after disconnected
+    beacon_test_provider.disconnect()
+    actual = beacon_test_provider.is_connected
+    expect = False
+    assert actual == expect
+
+
+def test_client_version(configured_beacon_test_provider):
+    actual = configured_beacon_test_provider.client_version
+    expect = "Lighthouse/v0.1.5 (Linux x86_64)"
+    assert actual == expect
+
+
+@pytest.mark.parametrize("block_id", (1, "1", "0x1", HexStr("0x1")))
+def test_get_block(configured_beacon_test_provider, block_id):
+    actual = configured_beacon_test_provider.get_block(block_id)
+    endpoint = configured_beacon_test_provider.uri + f"/eth/v2/beacon/blocks/{block_id}"
+    resp = requests.get(endpoint).json()
+    block_data = resp["data"]["message"]
+    expect = configured_beacon_test_provider.network.ecosystem.decode_block(block_data)
+    assert actual == expect
