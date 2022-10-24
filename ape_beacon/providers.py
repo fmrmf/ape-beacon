@@ -165,7 +165,7 @@ class BeaconProvider(ProviderAPI, ABC):
         except requests.exceptions.HTTPError as err:
             raise ValidatorNotFoundError(address) from err
 
-        balance = resp["data"]["balance"]
+        balance = int(resp["data"]["balance"])
         return balance
 
     def block_ranges(self, start=0, stop=None, page=None):

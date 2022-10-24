@@ -10,6 +10,10 @@ from web3.providers.eth_tester.defaults import API_ENDPOINTS
 from ape_beacon.providers import BeaconProvider
 
 CHAIN_ID = API_ENDPOINTS["eth"]["chainId"]()
+VALIDATORS = {
+    "110280": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a"  # noqa: E501
+}
+SLOTS = {"1": "15796864"}
 
 
 class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
@@ -86,6 +90,7 @@ class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
         self._add_get_health_endpoint()
         self._add_deposit_contract_endpoint()
         self._add_get_block_endpoint()
+        self._add_get_validator_endpoint()
 
     def _teardown_backend(self):
         if self._beacon_backend is not None:
@@ -116,7 +121,7 @@ class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
         )
 
     def _add_get_block_endpoint(self):
-        # add slot 1 and a random slot
+        # add slot 1 slot
         endpoint_urls = [
             self.uri + "/eth/v2/beacon/blocks/1",
             self.uri + "/eth/v2/beacon/blocks/0x1",
@@ -183,5 +188,71 @@ class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
                 "signature": "0xa30d70b3e62ff776fe97f7f8b3472194af66849238a958880510e698ec3b8a470916680b1a82f9d4753c023153fbe6db10c464ac532c1c9c8919adb242b05ef7152ba3e6cd08b730eac2154b9802203ead6079c8dfb87f1e900595e6c00b4a9a",  # noqa: E501
             },
         }
+
+        # add the success mocks
         for url in endpoint_urls:
             self.beacon_backend.get(url, json=json, status=200)
+
+        # add the error mock
+        # check for 400, 404, and 500 possible responses
+        self.beacon_backend.get(
+            self.uri + "/eth/v2/beacon/blocks/s",
+            json={"code": 400, "message": "Invalid block ID: current"},
+            status=400,
+        )
+        self.beacon_backend.get(
+            self.uri + "/eth/v2/beacon/blocks/2",
+            json={"code": 404, "message": "Block not found"},
+            status=404,
+        )
+        self.beacon_backend.get(
+            self.uri + "/eth/v2/beacon/blocks/-1",
+            json={"code": 500, "message": "Internal server error"},
+            status=500,
+        )
+
+    def _add_get_validator_endpoint(self):
+        # add a validator
+        endpoint_urls = [
+            self.uri + "/eth/v1/beacon/states/head/validators/110280",
+            self.uri
+            + "/eth/v1/beacon/states/head/validators/0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",  # noqa: E501
+        ]
+        json = {
+            "execution_optimistic": False,
+            "data": {
+                "index": "110280",
+                "balance": "32000000000",
+                "status": "active_ongoing",
+                "validator": {
+                    "pubkey": "0x93247f2209abcacf57b75a51dafae777f9dd38bc7053d1af526f220a7489a6d3a2753e5f3e8b1cfe39b56f43611df74a",  # noqa: E501
+                    "withdrawal_credentials": "0xcf8e0d4e9587369b2301d0790347320302cc0943d5a1884560367e8208d920f2",  # noqa: E501
+                    "effective_balance": "32000000000",
+                    "slashed": False,
+                    "activation_eligibility_epoch": "1",
+                    "activation_epoch": "1",
+                    "exit_epoch": "1",
+                    "withdrawable_epoch": "1",
+                },
+            },
+        }
+        for url in endpoint_urls:
+            self.beacon_backend.get(url, json=json, status=200)
+
+        # add the error mock
+        # check for 400, 404, and 500 possible responses
+        self.beacon_backend.get(
+            self.uri + "/eth/v1/beacon/states/head/validators/s",
+            json={"code": 400, "message": "Invalid validator ID: current"},
+            status=400,
+        )
+        self.beacon_backend.get(
+            self.uri + "/eth/v1/beacon/states/head/validators/2",
+            json={"code": 404, "message": "Validator not found"},
+            status=404,
+        )
+        self.beacon_backend.get(
+            self.uri + "/eth/v1/beacon/states/head/validators/-1",
+            json={"code": 500, "message": "Internal server error"},
+            status=500,
+        )
