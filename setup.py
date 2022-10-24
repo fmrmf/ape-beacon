@@ -14,6 +14,7 @@ extras_require = {
         "mypy>=0.971",  # Static type analyzer
         "flake8>=4.0.1",  # Style linter
         "isort>=5.10.1",  # Import sorting linter
+        "types-requests",  # NOTE: Needed due to mypy typeshed
     ],
     "release": [  # `release` GitHub Action job uses this
         "setuptools",  # Installation tool
@@ -57,7 +58,6 @@ setup(
         "hexbytes",  # Use same version as eth-ape
         "web3",  # Use same version as eth-ape
         "responses",  # Use for beacon provider local testing
-        "types-requests",
     ],
     python_requires=">=3.8,<4",
     extras_require=extras_require,
