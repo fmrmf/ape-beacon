@@ -56,6 +56,8 @@ setup(
         "eth-ape>=0.5.2,<0.6.0",
         "hexbytes",  # Use same version as eth-ape
         "web3",  # Use same version as eth-ape
+        "responses",  # Use for beacon provider local testing
+        "types-requests",
     ],
     python_requires=">=3.8,<4",
     extras_require=extras_require,

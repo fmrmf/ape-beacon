@@ -7,6 +7,8 @@ from ape_ethereum.ecosystem import Ethereum, NetworkConfig
 
 from ape_beacon.containers import BeaconBlockBody, BeaconExecutionPayload
 
+from .types import attempt_to_hexbytes
+
 NETWORKS = {
     # chain_id, network_id
     "mainnet": (1, 1),
@@ -14,24 +16,19 @@ NETWORKS = {
 }
 
 
-def _create_network_config(
-    required_confirmations: int = 7, block_time: int = 12, **kwargs
-) -> NetworkConfig:
-    # Helper method to isolate `type: ignore` comments.
-    return NetworkConfig(
-        required_confirmations=required_confirmations, block_time=block_time, **kwargs
-    )  # type: ignore
-
-
 def _create_local_config(default_provider: Optional[str] = None) -> NetworkConfig:
-    return _create_network_config(
-        required_confirmations=0, block_time=0, default_provider=default_provider
-    )
+    return _create_config(required_confirmations=0, block_time=0, default_provider=default_provider)
+
+
+def _create_config(required_confirmations: int = 2, **kwargs) -> NetworkConfig:
+    # Put in own method to isolate `type: ignore` comments
+    return NetworkConfig(required_confirmations=required_confirmations, **kwargs)  # type: ignore
 
 
 class BeaconConfig(PluginConfig):
-    mainnet: NetworkConfig = _create_network_config()
-    local: NetworkConfig = _create_network_config(default_provider="test")
+    mainnet: NetworkConfig = _create_config(block_time=12, default_provider="lighthouse")
+    goerli: NetworkConfig = _create_config(block_time=12, default_provider="lighthouse")
+    local: NetworkConfig = _create_local_config(default_provider="test")
     default_network: str = LOCAL_NETWORK_NAME
 
 
@@ -43,7 +40,6 @@ class BeaconBlock(BlockAPI):
     `Beacon block <https://github.com/ethereum/beacon-APIs/blob/master/types/bellatrix/block.yaml>`
     """
 
-    slot: Optional[int] = None
     proposer_index: Optional[int] = None
     body: BeaconBlockBody
 
@@ -53,17 +49,18 @@ class Beacon(Ethereum):
     def config(self) -> BeaconConfig:  # type: ignore
         return cast(BeaconConfig, self.config_manager.get_config("beacon"))
 
-    # TODO: make sure BeaconProvider parses signed block response into this input data format  # noqa: E501
     def decode_block(self, data: Dict) -> BlockAPI:
         """
         Decodes consensus layer block with possible execution layer
         payload.
         """
-        # map CL roots to ape BlockAPI hashes (block within a block)
+        # map CL (slot, roots) to ape BlockAPI (number, hashes)
+        if "slot" in data:
+            data["number"] = data.pop("slot")
         if "parent_root" in data:
-            data["parent_hash"] = data.pop("parent_root")
+            data["parent_hash"] = attempt_to_hexbytes(data.pop("parent_root"))
         if "state_root" in data:
-            data["hash"] = data.pop("state_root")
+            data["hash"] = attempt_to_hexbytes(data.pop("state_root"))
 
         # limit data retained at block level for beacon operations
         if "proposer_slashings" in data:
@@ -81,19 +78,31 @@ class Beacon(Ethereum):
         data["timestamp"] = 0
         data["size"] = 0
 
-        # use data from EL if can (block in a block post-merge)
+        # use data from EL if can (block within a block post-merge)
         payload = None
-        payload_data = data["body"].pop("execution_payload", None)
-        if payload_data is not None:
-            data["number"] = payload_data["number"]
-            data["timestamp"] = payload_data["timestamp"]
-            data["size"] = payload_data["size"]
+        if "body" in data:
+            payload_data = data["body"].pop("execution_payload", None)
+            if payload_data is not None:
+                payload_data["size"] = 0  # TODO: infer size from gas limit
 
-            # decode EL block separately from CL
-            prev_randao = payload_data.pop("prev_randao")
-            payload_data = super().decode_block(payload_data).dict()
-            payload_data.update({"prev_randao": prev_randao})
-            payload = BeaconExecutionPayload.parse_obj(payload_data)
+                # convert from beacon API spec to an Ape BlockAPI for block in block
+                if "timestamp" in payload_data:
+                    data["timestamp"] = payload_data["timestamp"]
+                if "block_number" in payload_data:
+                    payload_data["number"] = payload_data.pop("block_number")
+                if "block_hash" in payload_data:
+                    payload_data["hash"] = attempt_to_hexbytes(payload_data.pop("block_hash"))
+                if "parent_hash" in payload_data:
+                    payload_data["parent_hash"] = attempt_to_hexbytes(
+                        payload_data.pop("parent_hash")
+                    )
+
+                # decode EL block separately from CL
+                prev_randao = payload_data.pop("prev_randao", None)
+                payload_data = super().decode_block(payload_data).dict()
+                if prev_randao is not None:
+                    payload_data.update({"prev_randao": prev_randao})
+                payload = BeaconExecutionPayload.parse_obj(payload_data)
 
         # parse without EL payload then set payload
         block = BeaconBlock.parse_obj(data)
