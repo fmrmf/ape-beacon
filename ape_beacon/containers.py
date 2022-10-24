@@ -30,8 +30,8 @@ class Eth1Data(BaseModel):
 
 
 class SyncAggregate(BaseModel):
-    sync_committee_bits: Any  # Bitvector[SYNC_COMMITTEE_SIZE]
-    sync_committee_signature: Any  # Bytes96
+    sync_committee_bits: Any  # TODO: Bitvector[SYNC_COMMITTEE_SIZE]
+    sync_committee_signature: Any  # TODO: Bytes96
 
 
 class BeaconExecutionPayload(BlockAPI):
