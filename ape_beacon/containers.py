@@ -74,14 +74,12 @@ class BeaconBlockBody(BaseModel):
     randao_reveal: Any  # Bytes96
     eth1_data: Eth1Data  # Eth1 data vote
     graffiti: Any = EMPTY_BYTES32  # Bytes32 (arbitrary data)
-    # Operations
     num_proposer_slashings: int = 0
     num_attester_slashings: int = 0
     num_attestations: int = 0
     num_deposits: int = 0
     num_voluntary_exits: int = 0
     sync_aggregate: Optional[SyncAggregate] = None  # NOTE: pre-merge has no sync agg
-    # Execution
     execution_payload: Optional[BeaconExecutionPayload] = None  # NOTE: pre-merge has no payload
 
     @validator("randao_reveal", "graffiti", pre=True)

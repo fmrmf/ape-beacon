@@ -35,7 +35,6 @@ class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
 
     @property
     def beacon_backend(self) -> responses.RequestsMock:
-        # TODO: requests mock
         if self._beacon_backend is None:
             raise ProviderNotConnectedError()
 
