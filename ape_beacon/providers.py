@@ -101,8 +101,12 @@ class BeaconProvider(ProviderAPI, ABC):
         if self._beacon is None:
             return False
 
+        # treat as connected if node is fully synced or syncing
         status_code = self._beacon.get_health()
-        return status_code == requests.status_codes.codes.ok
+        return (
+            status_code == requests.status_codes.codes.ok
+            or status_code == requests.status_codes.codes.partial
+        )
 
     def update_settings(self, new_settings: dict):
         self.disconnect()
