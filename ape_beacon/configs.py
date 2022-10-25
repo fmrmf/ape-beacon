@@ -2,6 +2,7 @@ from typing import Optional
 
 from ape.api import PluginConfig
 from ape.api.networks import LOCAL_NETWORK_NAME
+from pydantic import Extra
 
 from .providers import DEFAULT_SETTINGS
 
@@ -9,6 +10,9 @@ from .providers import DEFAULT_SETTINGS
 class NetworkConfig(PluginConfig):
     required_confirmations: int = 0
     block_time: int = 0
+
+    class Config:
+        extra = Extra.allow
 
 
 def _create_local_config(default_provider: Optional[str] = None, **kwargs) -> NetworkConfig:
