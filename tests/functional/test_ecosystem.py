@@ -2,6 +2,7 @@ from ape_beacon.containers import BeaconExecutionPayload
 
 # NOTE: testing success cases given time constraints
 # TODO: testing non-success
+# TODO: better testing around expect, particuarly on data truncation with len()
 
 
 def test_decode_block_when_no_payload(beacon):

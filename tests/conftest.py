@@ -42,6 +42,11 @@ def accounts():
 
 
 @pytest.fixture(scope="session")
+def chain():
+    return ape.chain
+
+
+@pytest.fixture(scope="session")
 def beacon(networks):
     return networks.beacon
 
