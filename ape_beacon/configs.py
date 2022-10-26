@@ -4,8 +4,6 @@ from ape.api import PluginConfig
 from ape.api.networks import LOCAL_NETWORK_NAME
 from pydantic import Extra
 
-from .providers import DEFAULT_SETTINGS
-
 
 class NetworkConfig(PluginConfig):
     required_confirmations: int = 0
@@ -29,11 +27,3 @@ class BeaconConfig(PluginConfig):
     goerli: NetworkConfig = _create_config(block_time=12)
     local: NetworkConfig = _create_local_config()
     default_network: str = LOCAL_NETWORK_NAME
-
-
-class LighthouseNetworkConfig(PluginConfig):
-    # Make sure you are running the right networks when you try for these
-    mainnet: dict = DEFAULT_SETTINGS.copy()
-    goerli: dict = DEFAULT_SETTINGS.copy()
-    # Make sure to run via `geth --dev` (or similar)
-    local: dict = DEFAULT_SETTINGS.copy()

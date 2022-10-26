@@ -1,9 +1,8 @@
 from ape import plugins
 from ape.api.networks import LOCAL_NETWORK_NAME, NetworkAPI, create_network_type
 
-from .configs import BeaconConfig, LighthouseNetworkConfig
+from .configs import BeaconConfig
 from .ecosystem import NETWORKS, Beacon
-from .providers import Lighthouse
 
 
 @plugins.register(plugins.Config)
@@ -23,9 +22,3 @@ def networks():
 
     # NOTE: This works for local providers, as they get chain_id from themselves
     yield "beacon", LOCAL_NETWORK_NAME, NetworkAPI
-
-
-@plugins.register(plugins.ProviderPlugin)
-def providers():
-    for network_name in LighthouseNetworkConfig().dict():
-        yield "beacon", network_name, Lighthouse
