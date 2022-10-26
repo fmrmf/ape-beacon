@@ -5,7 +5,7 @@ import ape
 import pytest
 from ape.api.networks import LOCAL_NETWORK_NAME
 
-from .helpers.mock.provider import LocalBeaconProvider
+from .helpers.mock.provider import LocalBeaconProvider  # type: ignore
 
 # NOTE: Ensure that we don't use local paths for these
 ape.config.DATA_FOLDER = Path(mkdtemp()).resolve()
