@@ -1,8 +1,7 @@
 from ape import plugins
 from ape.api.networks import LOCAL_NETWORK_NAME, NetworkAPI, create_network_type
 
-from .configs import BeaconConfig
-from .ecosystem import NETWORKS, Beacon
+from .ecosystem import NETWORKS, Beacon, BeaconConfig
 
 
 @plugins.register(plugins.Config)
