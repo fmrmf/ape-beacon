@@ -18,8 +18,8 @@ SLOTS = {"1": "15796864"}
 
 class LocalBeaconProvider(TestProviderAPI, BeaconProvider):
     """
-    Similar to ape_test.providers.LocalProvider but for Beacon API. Uses
-    requests mock for backend.
+    Similar to ape_test.providers.LocalProvider but for Beacon API and far less
+    flexible. Uses requests mock for backend.
     """
 
     _uri: str = "http://localhost:5051"

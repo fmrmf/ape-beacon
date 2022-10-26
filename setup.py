@@ -8,12 +8,14 @@ extras_require = {
         "pytest-xdist",  # multi-process runner
         "pytest-cov",  # Coverage analyzer plugin
         "hypothesis>=6.2.0,<7.0",  # Strategy-based fuzzer
+        "responses",  # Use for mock beacon provider local testing
     ],
     "lint": [
         "black>=22.6.0",  # auto-formatter and linter
         "mypy>=0.971",  # Static type analyzer
         "flake8>=4.0.1",  # Style linter
         "isort>=5.10.1",  # Import sorting linter
+        "types-requests",  # NOTE: Needed due to mypy typeshed
     ],
     "release": [  # `release` GitHub Action job uses this
         "setuptools",  # Installation tool
@@ -56,8 +58,6 @@ setup(
         "eth-ape>=0.5.2,<0.6.0",
         "hexbytes",  # Use same version as eth-ape
         "web3",  # Use same version as eth-ape
-        "responses",  # Use for beacon provider local testing
-        "types-requests",
     ],
     python_requires=">=3.8,<4",
     extras_require=extras_require,

@@ -1,11 +1,12 @@
 from typing import Dict, Optional, cast
 
+from ape.api import PluginConfig
+from ape.api.networks import LOCAL_NETWORK_NAME
 from ape.api.providers import BlockAPI
 from ape_ethereum.ecosystem import Ethereum
 
 from ape_beacon.containers import BeaconBlockBody, BeaconExecutionPayload
 
-from .configs import BeaconConfig
 from .types import attempt_to_hexbytes
 
 NETWORKS = {
@@ -13,6 +14,28 @@ NETWORKS = {
     "mainnet": (1, 1),
     "goerli": (5, 5),
 }
+
+
+class NetworkConfig(PluginConfig):
+    required_confirmations: int = 0
+    default_provider: Optional[str] = "lighthouse"
+    block_time: int = 0
+
+
+def _create_local_config(default_provider: Optional[str] = None, **kwargs) -> NetworkConfig:
+    return _create_config(required_confirmations=0, default_provider=default_provider, **kwargs)
+
+
+def _create_config(required_confirmations: int = 2, **kwargs) -> NetworkConfig:
+    # Put in own method to isolate `type: ignore` comments
+    return NetworkConfig(required_confirmations=required_confirmations, **kwargs)
+
+
+class BeaconConfig(PluginConfig):
+    mainnet: NetworkConfig = _create_config(block_time=12)
+    goerli: NetworkConfig = _create_config(block_time=12)
+    local: NetworkConfig = _create_local_config(default_provider="test")
+    default_network: str = LOCAL_NETWORK_NAME
 
 
 class BeaconBlock(BlockAPI):
